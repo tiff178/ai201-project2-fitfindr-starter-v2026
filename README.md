@@ -1,105 +1,48 @@
 # FitFindr
 
-> ### 👋 Start here
->
-> **New to this repo? Read [RUNNING.md](RUNNING.md) first** — setup, every
-> command, and what to do when something breaks.
->
-> Once `python test.py` passes:
->
-> ```bash
-> python app.py listings --full -n 6      # read the data (Milestone 1)
-> python app.py fields                    # what you can filter on
-> python app.py ask 'vintage graphic tee under $30'
-> ```
->
-> All three tools are stubs, so that last command will do nothing useful yet.
-> That's the starting position.
->
-> **The rest of this file is your submission.** Fill it in as you go.
-
----
-
-<!-- ─────────────────────────────────────────────────────────────────────────
-     HOW TO USE THIS FILE
-
-     This is your submission. Fill each section in as you finish the milestone
-     it belongs to — don't leave it all to the end.
-
-     Unit 3 asks for the first five sections. Unit 4 adds the five below them.
-     Leave the unit 4 sections alone until then; they're here so you know
-     what's coming.
-
-     Everything is pasted as TEXT. No screenshots, no images, no video links.
-     A typed block of output gets full credit; a picture of the same output
-     gets none.
-     ───────────────────────────────────────────────────────────────────────── -->
-
-<!-- ═══════════════════════ UNIT 3 — THE BUILD ═══════════════════════ -->
+# Unit 3
 
 ## What This Does
 
 <!-- Three or four sentences: what a user asks for, and what they get back. -->
 
 
-
 ---
 
 ## Tool Inventory
 
-<!-- Four lines per tool. This is worth 2 points and it's the single most
-     common place students lose them.
-
-     "Returns a list" earns NOTHING. The description has to say what is IN
-     the list.
-
-     The empty case isn't optional either — it's the thing your loop branches
-     on, and if you don't decide it here you'll discover it as a crash in
-     Milestone 5. -->
-
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Searches the local clothing catalogue by description keywords, with optional size and maximum-price filters; size matching uses whole tokens and the price limit is inclusive 
+- **Inputs:** description: str, size: str | None = None, max_price: float | None = None
+- **Returns:** A list of matching listing dictionaries, ranked by keyword match and then lower price; each includes fields such as id, title, description, category, style_tags, size, condition, price, colors, brand, and platform
+- **When it has nothing:** Returns an empty list [], not None or an exception   
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Suggests two outfits built around a selected listing, using items from the user's wardrobe when available
+- **Inputs:** new_item: dict (a listing), wardrobe: dict (with an items list)
+- **Returns:** A non-empty str with two outfit suggestions; when the wardrobe has items, it names those pieces as written
+- **When it has nothing:** Still returns general outfit ideas and says they are general because no wardrobe is saved 
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Writes a short social-media-style caption about the selected second-hand find and how it could be worn
+- **Inputs:** outfit: str, new_item: dict (a listing)
+- **Returns:** A str of two to four sentences that includes the price written with digits and the selling platform
+- **When it has nothing:** If outfit is empty or whitespace, returns a helpful fallback message instead of calling the model or raising an exception. 
 
 ---
 
 ## Planning Loop
 
-<!-- Your branch rule, stated as a rule — the condition AND both paths — plus
-     the file and function that holds it.
+**Branch rule:** If `search_listings` return an empty list [], call `agent.py::_nothing_found_message` to put a message in `session["error"]` stating what the user could change and return the session without calling `suggest_outfit` or `create_fit_card`. Otherwise take the first result, put it in `session["selected_item"]`, and continue. 
 
-     Like this:
-       "If search_listings returns an empty list, put a message in the session
-        and stop. Otherwise take the first result and go to suggest_outfit."
-        — agent.py::run_agent
+**Where it lives:** `agent.py::run_agent` | `agent.py::_nothing_found_message` for empty-case message
 
-     The grader checks your code against what you claim here, so the file and
-     function have to be real. -->
+**How the query is parsed:** The query is parsed through regex in `agent.py::parse_query` for consistent inputs rather than raw text. 
 
-**Branch rule:**
-
-**Where it lives:** `agent.py::run_agent`
-
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
-
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** `search_listings` writes to `session["search_results"]`; then reads `session["search_results"][0]` back out and writes to `session["selected_item"]`; `suggest_outfit` is called with that. 
 
 ---
 
