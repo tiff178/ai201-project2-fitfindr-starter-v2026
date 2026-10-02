@@ -24,10 +24,7 @@ data earns credit; *"80% seemed reasonable"* does not.
 Given a query that matches at least one listing, the agent completes all three
 tool calls and returns a fit card — in at least 4 of 5 tries.
 
-**Why this target:**
-<!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
-     "my search is a plain keyword match and some phrasings will miss" is a
-     real answer. -->
+**Why this target:** Search relies on keyword matching against user input, which can occasionally miss a valid match depending on exact query phrasing. A 4 of 5 target ensures the multi-tool workflow executes consistently without over-penalizing natural language variation. 
 
 ---
 
@@ -36,67 +33,34 @@ tool calls and returns a fit card — in at least 4 of 5 tries.
 Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
-**Why this target:**
-<!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
-     about this path? -->
+**Why this target:** Unlike keyword matching, `search_listings` returning an empty list [] is a deterministic check. A 5 of 5 target ensures the agent stops before invoking downstream tools on empty data. 
 
 ---
 
-## 3. Something about state
+## 3. State passes to second tool without changes
 
-<!-- YOU WRITE THIS ONE.
+Given a query that matches at least one listing, the exact item stored in 
+`session["selected_item"]` matches the selected item received by `suggest_outfit` - 5 of 5 tries. 
 
-     How would you know that the item your search found is the same item the
-     next tool received? Name something countable or observable.
-
-     This is the criterion people find hardest, because state failure doesn't
-     look like state failure — it looks like a tool problem. Something that
-     compares session["selected_item"] against what actually reached
-     suggest_outfit is the shape you're after. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** Passing the exact item stored in session state to the second tool is deterministic. After `search_listings` returns a listing and is stored in `session["selected_item"]`, `suggest_outfit` should have that same selected item every time. 
 
 ---
 
-## 4. Something about the fit card
+## 4. Fit card caption is concise and contains required metadata
 
-<!-- YOU WRITE THIS ONE.
+Given a valid outfit suggestion and item, `create_fit_card` returns a caption between 20-50 words 
+that explicitly contain the item price (in digits) and the selling platform - in at least 4 of 5 tries. 
 
-     The fit card calls a model, so the same input can produce different words
-     each time. That's not a bug — it's the nature of the tool. So what would
-     make it acceptable?
-
-     Think about what you'd actually be unhappy to see. A caption that never
-     mentions the price? Two different items producing the same opening
-     sentence? A card longer than a caption anyone would post? Any of those can
-     be turned into a number. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** As `create_fit_card` calls the model, temperature variations can cause slight differences in phrasing and output length across runs. A 4 of 5 target accounts for minor model generation variance while ensuring core metadata requirements and length limits are consistently met. 
 
 ---
 
-## 5. Your choice
+## 5. Search respects a price ceiling 
 
-<!-- YOU WRITE THIS ONE TOO.
+Given a query with an explicit price limit (e.g. 'under $30'), every item returned 
+in `session["search_results"]` costs less than or equal to that price limit - 5 of 5 tries. 
 
-     Pick something you actually care about getting right. Speed, the empty
-     wardrobe path, what happens when the model can't be reached, whether the
-     search respects a price ceiling — anything, as long as it names a number
-     or an observable outcome. -->
-
-
-
-**Why this target:**
-
-
+**Why this target:** Filtering listings by price is deterministic code that compares the listings' price against the `max_price`, so it should return the listings correctly every time based on the price ceiling set. 
 
 ---
 
