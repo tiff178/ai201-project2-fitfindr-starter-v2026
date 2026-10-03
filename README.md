@@ -6,7 +6,7 @@
 
 Fitfindr is a three-tool agent that finds thrifted clothing listings matching your search description, size, and/or price budget. It suggests complete outfit ideas using items from your existing wardrobe and generates a short, social-media-style caption with the item's price and platform.
 
-To begin: `python app.py ask '...'` (e.g. python app.py ask '90s track jacket in size M)
+To begin: `python app.py ask '...'` (e.g. python app.py ask '90s track jacket in size M')
 
 ---
 
