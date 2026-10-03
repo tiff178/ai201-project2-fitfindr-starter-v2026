@@ -4,8 +4,9 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
+Fitfindr is a three-tool agent that finds thrifted clothing listings matching your search description, size, and/or price budget. It suggests complete outfit ideas using items from your existing wardrobe and generates a short, social-media-style caption with the item's price and platform.
 
+To begin: `python app.py ask '...'` (e.g. python app.py ask '90s track jacket in size M)
 
 ---
 
@@ -128,24 +129,17 @@ Scored these vintage Levi's 501s on Depop for just $38 and I am never taking the
 
 ## How I Used AI
 
-<!-- Two specific moments. What you asked, what came back, what you changed.
-
-     "I used Claude to help me code" is not enough.
-
-     "I gave Claude my search_listings spec. It returned None on no match
-     instead of an empty list, so I changed it" is the level we want. -->
-
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* "Here are five acceptance criteria for a multi-tool agent. For each one, tell me exactly how you would test it using only what the sentence says. Don't suggest improvements — just tell me what you'd do." (with my five acceptance criteria included)
+- *What came back:* Claude described how it would test each criteria, using only the wording given - no instrumentation or changes beyond what's needed to observe the stated behavior.
+- *What I changed:* As Claude was able to describe a test for each of them, there was no major changes needed to be made on my criteria. Therefore, I just refined my acceptance criteria by making sure it had named a clear target (such as count/number, etc.). 
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I gave Claude my `search_listings` spec to help me as a starting point to work on the code (same as with `suggest_outfit` and `create_fit_card`). 
+- *What came back:* Claude provided the code as a starting point and I read through each line to see what I had to fix. 
+- *What I changed:* Specifically for `search_listings`, I had to adjust the code to match case-insensitively for the size - "M" should match "S/M."
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
