@@ -13,6 +13,7 @@ Build and test your three tools in `tools.py` first. Then come here.
     python agent.py          runs both example paths below
 """
 
+import re
 import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
@@ -45,6 +46,57 @@ def new_session(query: str, wardrobe: dict) -> dict:
         "fit_card": None,            # what create_fit_card returned
         "error": None,               # set when the run ended early
     }
+
+
+# ── query parsing ─────────────────────────────────────────────────────────────
+
+def parse_query(query: str) -> dict:
+    """
+    Pull a description, a size, and a max_price out of a plain-language query,
+    with regex, for a consistent input to search_listings rather than raw text.
+
+    Args:
+        query: the raw user query, e.g. "vintage graphic tee under $30, size M".
+
+    Returns:
+        A dict with keys "description", "size", and "max_price". "size" and
+        "max_price" are None when the query doesn't mention them.
+    """
+    size = None
+    size_match = re.search(r"\bsize\s+([A-Za-z0-9/]+)", query, re.IGNORECASE)
+    if size_match:
+        size = size_match.group(1)
+
+    max_price = None
+    price_match = re.search(r"under\s*\$?(\d+(?:\.\d+)?)", query, re.IGNORECASE)
+    if price_match:
+        max_price = float(price_match.group(1))
+
+    description = query
+    if size_match:
+        description = description.replace(size_match.group(0), "")
+    if price_match:
+        description = description.replace(price_match.group(0), "")
+    description = re.sub(r"[,.]", " ", description)
+    description = re.sub(r"\s+", " ", description).strip()
+
+    return {"description": description, "size": size, "max_price": max_price}
+
+
+def _nothing_found_message(parsed: dict) -> str:
+    """
+    Build the message for session["error"] when search_listings returns [].
+
+    Names what the user could change, rather than just saying "No results".
+    """
+    suggestions = []
+    if parsed.get("max_price") is not None:
+        suggestions.append(f"raising your ${parsed['max_price']:.0f} price limit")
+    if parsed.get("size") is not None:
+        suggestions.append(f"dropping or changing the size filter ({parsed['size']})")
+    suggestions.append(f"using different keywords than \"{parsed.get('description', '')}\"")
+
+    return "No listings matched your search. Try " + ", or ".join(suggestions) + "."
 
 
 # ── planning loop ─────────────────────────────────────────────────────────────
@@ -107,8 +159,35 @@ def run_agent(query: str, wardrobe: dict) -> dict:
     """
     session = new_session(query, wardrobe)
 
-    # TODO: delete these two lines and build the loop.
-    session["error"] = "The planning loop isn't built yet — see the TODO in agent.py."
+    count = 0
+    count += 1
+    trace.check_iterations(count)
+
+    session["parsed"] = parse_query(query)
+
+    count += 1
+    trace.check_iterations(count)
+    results = search_listings(
+        session["parsed"]["description"],
+        size=session["parsed"]["size"],
+        max_price=session["parsed"]["max_price"],
+    )
+    session["search_results"] = results
+
+    if not results:
+        session["error"] = _nothing_found_message(session["parsed"])
+        return session
+
+    session["selected_item"] = results[0]
+
+    count += 1
+    trace.check_iterations(count)
+    session["outfit_suggestion"] = suggest_outfit(session["selected_item"], wardrobe)
+
+    count += 1
+    trace.check_iterations(count)
+    session["fit_card"] = create_fit_card(session["outfit_suggestion"], session["selected_item"])
+
     return session
 
 

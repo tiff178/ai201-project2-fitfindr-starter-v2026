@@ -48,15 +48,37 @@
 
 ## Sample Run
 
-<!-- Two things go here.
-
-     1. One FULL query and its output, pasted as text.
-     2. Your three per-tool terminal tests — the command and what it printed. -->
-
 **One full query**
 
 ```
-$ python app.py ask '...'
+$ python app.py ask 'vintage graphic tee under $30'
+
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   Here are two outfit ideas that combine the Y2K butterfly baby tee with pieces already in their wardrobe:
+
+### Outfit 1: Streetwear Contrast (Y2K Meets Denim)
+This look leans into the vintage Y2K aesthetic by balancing the fitted, feminine crop top with structured, baggy bottoms. 
+* **Top:** The new **Y2K Baby Tee** (Butterfly Print)
+* **Bottoms:** **Baggy straight-leg jeans** (dark wash)
+* **Outerwear:** **Vintage black denim jacket** (slightly cropped)
+* **Shoes:** **Chunky white sneakers**
+* **Accessories:** **Black crossbody bag**
+
+*Why it works:* The fitted crop of the baby tee pairs naturally with high-waisted, baggy jeans to create a flattering proportion play. Throwing the slightly cropped black denim jacket on top ties the look together, while the chunky white sneakers and crossbody bag keep the streetwear vibe grounded and casual.
+
+---
+
+### Outfit 2: Casual Earth-Tone Mix (Eclectic Casual)
+This outfit takes the pink, purple, and white butterfly graphic and uses it to add a pop of color and playful energy to a more neutral, relaxed bottom.
+* **Top:** The new **Y2K Baby Tee** (Butterfly Print)
+* **Bottoms:** **Wide-leg khaki trousers**
+* **Shoes:** **Chunky white sneakers**
+* **Accessories:** **Brown leather belt** and **Black crossbody bag**
+
+*Why it works:* The khaki trousers bring a minimal, earth-tone balance that tones down the sweetness of the butterfly graphic, making the outfit feel effortless and cool rather than overly costume-y. Tucking the baby tee in and adding the brown leather belt adds definition at the waist, while the white sneakers tie in the white base of the shirt.
+
+  Fit card: scored this y2k butterfly baby tee on depop for just $18 and i am officially obsessed 🦋✨ can’t wait to style this all summer long!
 
 ```
 
