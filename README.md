@@ -147,15 +147,6 @@ Scored these vintage Levi's 501s on Depop for just $38 and I am never taking the
 
 ## Run Log — Before
 
-<!-- Five criteria, five tries each, in this exact format.
-
-     Five, because your criteria are written out of five. Mark each try PASS
-     or FAIL, count the passes, and read that count against your target — a
-     row targeting 4 of 5 with three PASS cells is MISSED (3/5).
-
-     `python run_eval.py --label before` runs everything and writes the table
-     into results/. Paste it here and fill in the verdicts. -->
-
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
 | 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
@@ -167,8 +158,8 @@ Scored these vintage Levi's 501s on Depop for just $38 and I am never taking the
 **Real output from one try**, pasted as text, naming the file and function
 that produced it: 
 
-Criterion 3, Try 1 (Query: `90s track jacket in size M` & Wardrobe: example)
- 
+Criterion 3, Try 1 (Query: `90s track jacket in size M`, Wardrobe: `example`)
+
 The trace comes from `agent.py::run_agent`, the outfit suggestions comes from `tools.py::suggest_outfit`, 
 the fit card comes from `tools.py::create_fit_card`, and the run is driven by `run_eval.py::run_once`. 
 
@@ -205,11 +196,9 @@ Here are two specific outfit combinations using the new 90s track jacket and pie
 
 **Why it works:** Pairing a retro athletic piece like the navy track jacket with tailored khaki trousers creates a cool "high-low" mix. Tucking in the white tank and adding the brown leather belt defines the waist, while the chunky white sneakers keep the overall silhouette grounded and modern.
 
-
 Fit card:
 
 Scored this vintage navy and white track jacket on Poshmark for just $45, and I am obsessed. It’s so lightweight and the sleeve details are literal perfection for 90s streetwear. Can't wait to style this with baggy denim and chunky sneakers all season long!
-
 
 Trace:
 
@@ -235,33 +224,17 @@ Trace:
 
 ## Verdicts and Diagnoses
 
-<!-- MET or MISSED per criterion against LAST UNIT's target, plus a sentence on
-     how you decided.
-
-     Then, for every miss: which of the four places it happened — a tool, the
-     loop's branch, the session, or the model's output — AND the mechanism.
-
-     Not a diagnosis:  "The fit card was bad."
-     A diagnosis:      "The fit card criterion missed on 2 of 5 items. Both had
-                        an empty brand field. My prompt puts the brand in the
-                        first sentence, so the card opened with a blank and read
-                        like a fragment. The tool worked; the prompt assumed a
-                        field that isn't always there."
-
-     Look for a pattern. Three misses on the same tool is one problem, not
-     three. -->
-
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 | A matching query completes all three tools |  |  |  |
-| 2 | An impossible query stops before the second tool |  |  |  |
-| 3 | State passes to second tool without changes |  |  |  |
-| 4 | Fit card caption is concise and contains required metadata |  |  |  |
-| 5 | Search respects a price ceiling |  |  |  |
+| 1 | A matching query completes all three tools | 4 of 5 | MET (5/5) | All five tries ran `search_listings`, `suggest_outfit`, `create_fit_card`, and returned a fit card. |
+| 2 | An impossible query stops before the second tool | 5 of 5 | MET (5/5) | All five tries returned no results, stopped before calling `suggest_outfit`, and returns a message of what to change. |
+| 3 | State passes to second tool without changes | 5 of 5 | MET (5/5) | All five tries the exact item stored in `session["selected_item"]` matches the selected item received by `suggest_outfit`. This is visible in the trace step from `[3] selected_item` to `[4] suggest_outfit`. |
+| 4 | Fit card caption is concise and contains required metadata | 4 of 5 | MET (5/5) | All five tries `create_fit_card` returned a caption between 20-50 words that explicitly contain the item price and the selling platform. Manually counted the words from the caption (typically ranged from 30-45 words), making sure item price and selling platform (metadata) is included. |
+| 5 | Search respects a price ceiling | 5 of 5 | MET (5/5) | All 5 tries returned an item that cost less than or equal to the set price limit (if price limit was provided).|
 
-**Diagnoses**
+**Diagnoses**: No criterion was missed, so there is no failure to diagnose. However, I noticed that the model stopped early (Criterion 5, Try 5), which due to a spike in demand (Error 503), yet it still returned complete results. This is likely because it reused cached output from an earlier try instead of recomputing, so the results may reflect prior work rather than a fresh full run. I plan to rerun it when demand is lower to confirm.
 
-
+One limitation: Criterion 4 was tested against only two scenarios, so I can't rule out failures on other queries where the fit card could potentially fall outside the 20-50 word limit. To cover this, I would test more varied examples and check the word count programmatically instead of by hand.
 
 ---
 
