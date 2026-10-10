@@ -143,7 +143,7 @@ Scored these vintage Levi's 501s on Depop for just $38 and I am never taking the
 
 **Moment 3**
 
-- *What I asked for:* "Given my Criterion 4 - "Fit card caption is concise and contains required metadata" (a 20-50 word caption that includes the item price and selling platform) - and the spec for the `create_fit_card` tool, would it be better to test the sentence count or word count?"
+- *What I asked for:* "Given my Criterion 4: Given a valid outfit suggestion and item, `create_fit_card` returns a caption between 20-50 words that explicitly contain the item price (in digits) and the selling platform - in at least 4 of 5 tries and the spec for the `create_fit_card` tool, would it be better to test the sentence count or word count?"
 - *What came back:* Claude said the spec says "a two-to-four sentence caption" and never mentions a word count, so sentence count is the only length rule in the spec that you can actually test. The 20-50 word range was never in the spec, which is why it's the weaker criterion.
 - *What I changed:* I kept the 20-50 word check for this round, but noted in my evaluation that Criterion 4 should be rewritten as a future improvement to test for a two-to-four sentence caption, since that is what the spec actually requires.
 
