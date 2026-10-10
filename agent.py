@@ -216,6 +216,11 @@ def run_agent(query: str, wardrobe: dict) -> dict:
             inputs=f"outfit={session['outfit_suggestion']!s}, item={session['selected_item'].get('title')!r}",
             returned=session["fit_card"],
         )
+
+        word_count = len(session["fit_card"].split())
+        in_range = 20 <= word_count <= 50
+        trace.step("count_caption_words", returned=f"{word_count} words",
+                   note="within 20-50 words" if in_range else "OUTSIDE the 20-50 word range")
     except ModelUnavailable as e:
         session["error"] = f"The model is unavailable: {e}"
         trace.step("model_unavailable", returned=session["error"],

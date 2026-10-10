@@ -57,6 +57,27 @@ SCENARIOS = [
         "criterion": 4,
     },
     {
+        # A query that should produce a fit card with a concise caption (20-50 words) and metadata. Criterion 4.
+        "name": "fit card caption length and metadata (test 1)",
+        "query": "platform sneakers in size 8",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # A query that should produce a fit card with a concise caption (20-50 words) and metadata. Criterion 4.
+        "name": "fit card caption length and metadata (test 2)",
+        "query": "long sleeve in size L under $40",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        # A query that should produce a fit card with a concise caption (20-50 words) and metadata. Criterion 4.
+        "name": "fit card caption length and metadata (test 3)",
+        "query": "leather bag under $50",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
         # A query that respects the price ceiling. Criterion 5.
         "name": "price ceiling respected",
         "query": "y2k style pants under $30",
