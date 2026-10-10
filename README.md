@@ -158,17 +158,77 @@ Scored these vintage Levi's 501s on Depop for just $38 and I am never taking the
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. An impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. State passes to second tool without changes | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card caption is concise and contains required metadata | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Search respects a price ceiling | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Real output from one try**, pasted as text, naming the file and function
-that produced it:
+that produced it: Criterion 3, Try 1 (Query: `90s track jacket in size M` & Wardrobe: example); 
+The trace comes from `agent.py::run_agent`, the outfit suggestions comes from `tools.py::suggest_outfit`, 
+the fit card comes from `tools.py::create_fit_card`, and the run is driven by `run_eval.py::run_once`. 
 
 ```
+- stopped early: no
+- selected_item: 90s Track Jacket — Navy/White Stripe ($45.0, poshmark)
+- search_results: 10
 
+Outfit suggestion:
+
+```
+Here are two specific outfit combinations using the new 90s track jacket and pieces from their existing wardrobe:
+
+### Outfit 1: Effortless 90s Streetwear
+*This look leans into the retro athletic vibe of the track jacket, balancing baggy denim with a fitted base.*
+
+* **Outerwear:** 90s Track Jacket (Navy/White Stripe)
+* **Top:** White ribbed tank top
+* **Bottoms:** Baggy straight-leg jeans, dark wash
+* **Shoes:** Chunky white sneakers
+* **Accessories:** Black crossbody bag
+
+**Why it works:** The fitted white ribbed tank creates a great contrast against the relaxed, high-waisted baggy jeans and the lightweight track jacket worn open or partially zipped. The chunky white sneakers tie the athletic streetwear aesthetic together, and the black crossbody bag adds a clean, everyday finish.
+
+---
+
+### Outfit 2: High-Low Contrast (Sporty Meets Minimalist)
+*This look mixes the sporty track jacket with tailored earth-toned trousers for an elevated, effortless contrast.*
+
+* **Outerwear:** 90s Track Jacket (Navy/White Stripe)
+* **Top:** White ribbed tank top
+* **Bottoms:** Wide-leg khaki trousers
+* **Shoes:** Chunky white sneakers
+* **Accessories:** Brown leather belt, Black crossbody bag
+
+**Why it works:** Pairing a retro athletic piece like the navy track jacket with tailored khaki trousers creates a cool "high-low" mix. Tucking in the white tank and adding the brown leather belt defines the waist, while the chunky white sneakers keep the overall silhouette grounded and modern.
+```
+
+Fit card:
+
+```
+Scored this vintage navy and white track jacket on Poshmark for just $45, and I am obsessed. It’s so lightweight and the sleeve details are literal perfection for 90s streetwear. Can't wait to style this with baggy denim and chunky sneakers all season long!
+```
+
+Trace:
+
+```
+[1] parse_query
+      in:  '90s track jacket in size M'
+      out: description='90s track jacket in', size='M', max_price=None
+[2] search_listings (via MCP)
+      in:  description='90s track jacket in', size='M', max_price=None
+      out: 10 items: 90s Track Jacket — Navy/White Stripe, 90s Silk Slip Dress — Floral, Midi Length, Vintage Linen Blazer — Cream … +7 more
+[3] selected_item
+      in:  10 items: 90s Track Jacket — Navy/White Stripe, 90s Silk Slip Dress — Floral, Midi Length, Vintage Linen Blazer — Cream … +7 more
+      out: '90s Track Jacket — Navy/White Stripe' ($45.0, poshmark)
+[4] suggest_outfit
+      in:  item='90s Track Jacket — Navy/White Stripe', wardrobe=10 entries
+      out: Here are two specific outfit combinations using the new 90s track jacket and pieces from their existing wardro…
+[5] create_fit_card
+      in:  outfit=Here are two specific outfit combinations using the new 90s track jacket and pieces from their existing…
+      out: Scored this vintage navy and white track jacket on Poshmark for just $45, and I am obsessed. It’s so lightweig…
+```
 ```
 
 ---
@@ -193,11 +253,11 @@ that produced it:
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | A matching query completes all three tools |  |  |  |
+| 2 | An impossible query stops before the second tool |  |  |  |
+| 3 | State passes to second tool without changes |  |  |  |
+| 4 | Fit card caption is concise and contains required metadata |  |  |  |
+| 5 | Search respects a price ceiling |  |  |  |
 
 **Diagnoses**
 
@@ -207,8 +267,7 @@ that produced it:
 
 ## Loop Trace
 
-**Happy path**
-`python app.py 'vintage graphic tee under $30' --trace` 
+**Happy path**: `python app.py 'vintage graphic tee under $30' --trace` 
 
 ```
 [1] parse_query
@@ -228,8 +287,7 @@ that produced it:
       out: scored this y2k butterfly baby tee on depop for just $18 and i am officially obsessed 🦋✨ can’t wait to style t…
 ```
 
-**Empty search**
-`python app.py 'designer ballgown size XXS under $5' --trace`
+**Empty search**: `python app.py 'designer ballgown size XXS under $5' --trace`
 
 ```
 [1] parse_query
