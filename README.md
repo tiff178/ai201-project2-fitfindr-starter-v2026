@@ -165,7 +165,10 @@ Scored these vintage Levi's 501s on Depop for just $38 and I am never taking the
 | 5. Search respects a price ceiling | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Real output from one try**, pasted as text, naming the file and function
-that produced it: Criterion 3, Try 1 (Query: `90s track jacket in size M` & Wardrobe: example); 
+that produced it: 
+
+Criterion 3, Try 1 (Query: `90s track jacket in size M` & Wardrobe: example)
+ 
 The trace comes from `agent.py::run_agent`, the outfit suggestions comes from `tools.py::suggest_outfit`, 
 the fit card comes from `tools.py::create_fit_card`, and the run is driven by `run_eval.py::run_once`. 
 
@@ -176,7 +179,6 @@ the fit card comes from `tools.py::create_fit_card`, and the run is driven by `r
 
 Outfit suggestion:
 
-```
 Here are two specific outfit combinations using the new 90s track jacket and pieces from their existing wardrobe:
 
 ### Outfit 1: Effortless 90s Streetwear
@@ -202,17 +204,15 @@ Here are two specific outfit combinations using the new 90s track jacket and pie
 * **Accessories:** Brown leather belt, Black crossbody bag
 
 **Why it works:** Pairing a retro athletic piece like the navy track jacket with tailored khaki trousers creates a cool "high-low" mix. Tucking in the white tank and adding the brown leather belt defines the waist, while the chunky white sneakers keep the overall silhouette grounded and modern.
-```
+
 
 Fit card:
 
-```
 Scored this vintage navy and white track jacket on Poshmark for just $45, and I am obsessed. It’s so lightweight and the sleeve details are literal perfection for 90s streetwear. Can't wait to style this with baggy denim and chunky sneakers all season long!
-```
+
 
 Trace:
 
-```
 [1] parse_query
       in:  '90s track jacket in size M'
       out: description='90s track jacket in', size='M', max_price=None
@@ -228,7 +228,7 @@ Trace:
 [5] create_fit_card
       in:  outfit=Here are two specific outfit combinations using the new 90s track jacket and pieces from their existing…
       out: Scored this vintage navy and white track jacket on Poshmark for just $45, and I am obsessed. It’s so lightweig…
-```
+
 ```
 
 ---
