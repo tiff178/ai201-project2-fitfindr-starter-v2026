@@ -159,12 +159,16 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         than a stack trace. The import is already at the top of this file.
     """
     session = new_session(query, wardrobe)
+    trace.start_trace()
 
     count = 0
     count += 1
     trace.check_iterations(count)
 
     session["parsed"] = parse_query(query)
+    p = session["parsed"]
+    trace.step("parse_query", inputs=repr(query),
+               returned=f"description={p['description']!r}, size={p['size']!r}, max_price={p['max_price']!r}")
 
     count += 1
     trace.check_iterations(count)
@@ -174,21 +178,50 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         "max_price": session["parsed"]["max_price"],
     })
     session["search_results"] = results
+    trace.step(
+        "search_listings (via MCP)",
+        inputs=f"description={p['description']!r}, size={p['size']!r}, max_price={p['max_price']!r}",
+        returned=results,
+    )
 
     if not results:
         session["error"] = _nothing_found_message(session["parsed"])
+        trace.step("branch: no_results",
+                   inputs=f"description={p['description']!r}, size={p['size']!r}, max_price={p['max_price']!r}",
+                   note="branch: empty, stopping before suggest_outfit and create_fit_card")
+        session["trace"] = trace.get_trace()
         return session
 
     session["selected_item"] = results[0]
+    item = session["selected_item"]
+    trace.step("selected_item",
+               inputs=results,
+               returned=f"{item.get('title')!r} (${item.get('price')}, {item.get('platform')})")
 
-    count += 1
-    trace.check_iterations(count)
-    session["outfit_suggestion"] = suggest_outfit(session["selected_item"], wardrobe)
+    try:
+        count += 1
+        trace.check_iterations(count)
+        session["outfit_suggestion"] = suggest_outfit(session["selected_item"], wardrobe)
+        trace.step(
+            "suggest_outfit",
+            inputs=f"item={session['selected_item'].get('title')!r}, wardrobe={len(wardrobe.get('items', wardrobe))} entries",
+            returned=session["outfit_suggestion"],
+        )
 
-    count += 1
-    trace.check_iterations(count)
-    session["fit_card"] = create_fit_card(session["outfit_suggestion"], session["selected_item"])
+        count += 1
+        trace.check_iterations(count)
+        session["fit_card"] = create_fit_card(session["outfit_suggestion"], session["selected_item"])
+        trace.step(
+            "create_fit_card",
+            inputs=f"outfit={session['outfit_suggestion']!s}, item={session['selected_item'].get('title')!r}",
+            returned=session["fit_card"],
+        )
+    except ModelUnavailable as e:
+        session["error"] = f"The model is unavailable: {e}"
+        trace.step("model_unavailable", returned=session["error"],
+                   note="branch: model failed, stopping")
 
+    session["trace"] = trace.get_trace()
     return session
 
 

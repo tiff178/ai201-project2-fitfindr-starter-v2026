@@ -141,12 +141,9 @@ Scored these vintage Levi's 501s on Depop for just $38 and I am never taking the
 - *What came back:* Claude provided the code as a starting point and I read through each line to see what I had to fix. 
 - *What I changed:* Specifically for `search_listings`, I had to adjust the code to match case-insensitively for the size - "M" should match "S/M."
 
-<!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
-
-     Don't fill these in during unit 3.
-     ═══════════════════════════════════════════════════════════════════ -->
-
 ---
+
+# Unit 4
 
 ## Run Log — Before
 
@@ -210,34 +207,45 @@ that produced it:
 
 ## Loop Trace
 
-<!-- One full run, printed step by step, with the MCP call visible in it.
-
-     `python app.py ask '...' --trace` once you've added the trace.step()
-     calls in Milestone 2.
-
-     Worth pasting BOTH the happy path and the empty-search path. The empty
-     one should be visibly shorter, because it stops. If your two traces are
-     the same length, your branch isn't working — and this is the fastest way
-     anyone will ever find that out. -->
-
 **Happy path**
+`python app.py 'vintage graphic tee under $30' --trace` 
 
 ```
-
+[1] parse_query
+      in:  'vintage graphic tee under $30'
+      out: description='vintage graphic tee', size=None, max_price=30.0
+[2] search_listings (via MCP)
+      in:  description='vintage graphic tee', size=None, max_price=30.0
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+[3] selected_item
+      in:  10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+      out: 'Y2K Baby Tee — Butterfly Print' ($18.0, depop)
+[4] suggest_outfit
+      in:  item='Y2K Baby Tee — Butterfly Print', wardrobe=10 entries
+      out: Here are two outfit ideas that combine the Y2K butterfly baby tee with pieces already in their wardrobe:  ### …
+[5] create_fit_card
+      in:  outfit=Here are two outfit ideas that combine the Y2K butterfly baby tee with pieces already in their wardrobe…
+      out: scored this y2k butterfly baby tee on depop for just $18 and i am officially obsessed 🦋✨ can’t wait to style t…
 ```
 
 **Empty search**
+`python app.py 'designer ballgown size XXS under $5' --trace`
 
 ```
-
+[1] parse_query
+      in:  'designer ballgown size XXS under $5'
+      out: description='designer ballgown', size='XXS', max_price=5.0
+[2] search_listings (via MCP)
+      in:  description='designer ballgown', size='XXS', max_price=5.0
+      out: [] (empty)
+[3] branch: no_results
+      in:  description='designer ballgown', size='XXS', max_price=5.0
+      →    branch: empty, stopping before suggest_outfit and create_fit_card
 ```
 
-**On the MCP move:** <!-- what changed in your code, and whether anything
-behaved differently afterwards. If the rewire didn't work, say exactly where it
-broke — the error text and the last thing that worked. That earns the point in
-full. -->
-
-
+**On the MCP move:** `search_listings` tool was moved onto MCP. In `mcp_server.py`, I registered my tool with its name, description, 
+and inputs. In `agent.py`, the direct `search_listings(...)` call in the `run_agent` function was replaced with `call_tool("search_listings", {...})` from `mcp_client`. Nothing about the results changed, so it works like before. The trace labels the step `search_listings (via MCP)`
+so the step is visible. 
 
 ---
 
@@ -281,18 +289,6 @@ full. -->
 
 <!-- ═════════════════════════════════════════════════════════════════════
 
-     SUBMISSION CHECKLIST — unit 3
-
-       [ ] criteria.md has five numbered criteria, each with a target
-       [ ] Each criterion has a reason underneath it
-       [ ] All five unit 3 sections above have real content
-       [ ] Tool Inventory: all three tools, inputs WITH TYPES, a specific
-           return value, and the empty case
-       [ ] Planning Loop names the branch rule and agent.py::run_agent
-       [ ] Sample Run: one full query plus the three per-tool tests, as text
-       [ ] At least four new commits
-       [ ] Repository URL submitted — WRITE IT DOWN, you submit the same one
-           next unit
 
      SUBMISSION CHECKLIST — unit 4
 
