@@ -53,6 +53,10 @@ that explicitly contain the item price (in digits) and the selling platform - in
 
 **Why this target:** As `create_fit_card` calls the model, temperature variations can cause slight differences in phrasing and output length across runs. A 4 of 5 target accounts for minor model generation variance while ensuring core metadata requirements and length limits are consistently met. 
 
+**Update**: The 20-50 word limit doesn't test the real requirement. The spec in `tools.py::create_fit_card` asks for a two-to-four sentence caption, so a better criterion is *the caption contains 2-4 sentences* (alongside the price and platform check). The function doesn't currently verify this, so a future improvement is to count sentences and retry or trim if the result falls outside that range. 
+
+- Given a valid outfit suggestion and item, `create_fit_card` returns a two-to-four sentence caption that explicitly contain the item price (in digits) and the selling platform - in at least 4 of 5 tries. 
+
 ---
 
 ## 5. Search respects a price ceiling 
