@@ -312,4 +312,26 @@ All five criteria were MET, so nothing is failing. One weakness is in the criter
 
 ---
 
+## Capstone
+
+**What This Extends**
+
+**The Shape**
+
+**Running It**
+
+**Instrumentation**
+
+**What It Costs**
+
+**Run Log and Verdicts**
+
+**The Improvement**
+
+**What's Still Broken**
+
+**How I Used AI**
+
+---
+
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
