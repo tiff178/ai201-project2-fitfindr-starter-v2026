@@ -33,16 +33,21 @@ then deploy it. A structured log you were handed teaches you nothing about
 what belongs in one — and the timing field is the one everybody skips.
 """
 
+import json
 import os
 import sys
 import threading
+import time
+import uuid
+from datetime import datetime, timezone
 
 # config first, and before anything that talks to the model: it loads your .env
 # and fixes the Windows console encoding for every module that imports it.
-import config  # noqa: F401
+import config
 
 from flask import Flask, jsonify, request
 
+import generate
 from agent import run_agent
 from utils.data_loader import get_example_wardrobe
 
@@ -90,6 +95,14 @@ app = Flask(__name__)
 
 _one_at_a_time = threading.Lock()
 
+def _ms(since: float) -> int:
+    return round((time.perf_counter() - since) * 1000)
+
+
+def _log_request(**fields) -> None:
+    record = {"timestamp": datetime.now(timezone.utc).isoformat(), **fields}
+    print(json.dumps(record, ensure_ascii=False), flush=True)
+
 
 @app.get("/health")
 def health():
@@ -107,10 +120,15 @@ def ask():
                                                 example wardrobe the CLI uses.
     Out:  the session dict from run_agent(), as JSON.
     """
+    t_start = time.perf_counter()
+    request_id = uuid.uuid4().hex[:8]
+
     payload = request.get_json(silent=True) or {}
     query = (payload.get("query") or "").strip()
     if not query:
-        # 400 rather than a stack trace: the caller can act on this one.
+        _log_request(request_id=request_id, query=query, status="bad_request",
+                     error="missing 'query' field",
+                     latency_ms=_ms(t_start), queue_wait_ms=0)
         return jsonify({"error": "Send JSON with a 'query' field, e.g. "
                                  '{"query": "vintage graphic tee under $30"}'}), 400
 
@@ -138,16 +156,44 @@ def ask():
 
     failure = None
     session = None
+    t_wait = time.perf_counter()
     with _one_at_a_time:
+        queue_wait_ms = _ms(t_wait)
+        calls_before = generate.call_count()
+        tokens_before = generate.token_counts()
+        t_run = time.perf_counter()
         try:
             session = run_agent(query, wardrobe)
         except Exception as exc:  # noqa: BLE001 — a 500 with a sentence beats a hang
             failure = f"{type(exc).__name__}: {exc}"
+        run_ms = _ms(t_run)
+        calls = generate.call_count() - calls_before
+        tokens_after = generate.token_counts()
+
+    prompt_tokens = tokens_after["prompt"] - tokens_before["prompt"]
+    output_tokens = tokens_after["output"] - tokens_before["output"]
 
     # Outside the lock: building a response is not work the next caller should
     # be waiting on.
     if failure is not None:
+        _log_request(request_id=request_id, query=query, status="error",
+                     error=failure, latency_ms=_ms(t_start),
+                     queue_wait_ms=queue_wait_ms, run_ms=run_ms,
+                     model_calls=calls, prompt_tokens=prompt_tokens,
+                     output_tokens=output_tokens)
         return jsonify({"error": failure}), 500
+
+    if session.get("error"):
+        status = "no_results" if not session.get("search_results") else "error"
+    else:
+        status = "ok"
+    item = session.get("selected_item") or {}
+    _log_request(request_id=request_id, query=query, status=status,
+                 error=session.get("error"), selected_item=item.get("title"),
+                 latency_ms=_ms(t_start), queue_wait_ms=queue_wait_ms,
+                 run_ms=run_ms, model_calls=calls,
+                 prompt_tokens=prompt_tokens, output_tokens=output_tokens,
+                 cache_enabled=config.CACHE_ENABLED)
 
     return jsonify(session)
 
