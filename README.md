@@ -316,7 +316,16 @@ All five criteria were MET, so nothing is failing. One weakness is in the criter
 
 **What This Extends**
 
+FitFindr (Unit 3 and Unit 4); This extension adds an operational and observability layer: a reproducible execution path outside the code editor, structured JSON logging that records request lifecycle metrics (timestamp, input query, output result, total latency, and error status), and measured cost and latency benchmarks.
+
 **The Shape**
+
+Shape A — Deploy and Instrument; The extension is the operational layer: the run path, the instrumentation, and the numbers that come out of it. 
+
+Out of Scope:
+1. Not adding any new agent tools (maintaining the existing three: `search_listings`, `suggest_outfit`, and `create_fit_card`).
+2. Not modifying the search algorithms, ranking logic, or outfit recommendation prompts.
+3. Not building a frontend or web user interface. 
 
 **Running It**
 
