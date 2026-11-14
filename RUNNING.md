@@ -138,6 +138,7 @@ curl https://fitfindr-p6is.onrender.com/health
 ```
 
 ```bash
+python serve.py
 curl -X POST https://fitfindr-p6is.onrender.com/ask \
   -H 'Content-Type: application/json' \
   -d '{"query": "vintage graphic tee under $30"}'

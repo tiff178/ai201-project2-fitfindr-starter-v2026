@@ -361,6 +361,13 @@ Measured across 10 distinct queries sent to the deployed Render web service by e
 - 100-a-Day Arithmetic: For 100 queries/day x 1,207 tokens/query, it would be 120,700 tokens per day.
 
 **Run Log and Verdicts**
+| Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
+|---|---|---|---|---|---|
+| 1. Token consumption per run stays within budget | 4 of 5 |  |  |  |  |
+| 2. Bad request rejects missing query without running the agent | 5 of 5 |  |  |  |  |
+| 3. Every request produces a structured log record | 5 of 5 |  |  |  |  |
+| 4. Warm request execution latency completes under 10 seconds | 4 of 5 |  |  |  |  |
+| 5. Model failure returns readable error and logs error status | 5 of 5 |  |  |  |  |
 
 **The Improvement**
 
