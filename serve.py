@@ -98,7 +98,7 @@ def _ms(since: float) -> int:
     return round((time.perf_counter() - since) * 1000)
 
 
-REQUEST_LOG = config.RESULTS_DIR / "requests.jsonl"
+REQUEST_LOG = config.LOGS_DIR / "requests.jsonl"
 
 
 def _log_request(**fields) -> None:
