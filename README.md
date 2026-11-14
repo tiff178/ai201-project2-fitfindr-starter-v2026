@@ -329,7 +329,10 @@ Out of Scope:
 
 **Running It**
 
+Path A - Hosted; FitFindr is deployed as a web service on Render at https://fitfindr-p6is.onrender.com, running `serve.py` via `gunicorn serve:app`. Refer to [RUNNING.md](RUNNING.md).
+
 **Instrumentation**
+
 
 **What It Costs**
 
