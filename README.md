@@ -332,9 +332,28 @@ Out of Scope:
 Path A - Hosted; FitFindr is deployed as a web service on Render at https://fitfindr-p6is.onrender.com, running `serve.py` via `gunicorn serve:app`. Refer to [RUNNING.md](RUNNING.md).
 
 **Instrumentation**
+Every run is recorded as a single structured JSON line with named fields: `timestamp`, `request_id`, `query`, `status` (`ok`, `no_results`, `bad_request`, or `error`), `error` (message string or `null`), `selected_item`, `latency_ms` (total duration), `queue_wait_ms`, `run_ms` (agent run duration), `model_calls`, `prompt_tokens`, `output_tokens`, and `cache_enabled`.
 
+The log entries below are extracted directly from the live Render web service logs: 
+
+```json
+{"timestamp": "2026-11-14T05:47:40.609802+00:00", "request_id": "a8e11631", "query": "vintage graphic tee under $30", "status": "ok", "error": null, "selected_item": "Y2K Baby Tee — Butterfly Print", "latency_ms": 20365, "queue_wait_ms": 0, "run_ms": 20364, "model_calls": 2, "prompt_tokens": 875, "output_tokens": 387, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:48:20.772404+00:00", "request_id": "7003b929", "query": "vintage blazer in size L", "status": "ok", "error": null, "selected_item": "Vintage Linen Blazer — Cream", "latency_ms": 7489, "queue_wait_ms": 0, "run_ms": 7489, "model_calls": 2, "prompt_tokens": 866, "output_tokens": 390, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:48:51.745210+00:00", "request_id": "a2fd766d", "query": "platform sneakers in size 8", "status": "ok", "error": null, "selected_item": "Platform Sneakers — White Chunky Sole", "latency_ms": 7105, "queue_wait_ms": 0, "run_ms": 7105, "model_calls": 2, "prompt_tokens": 832, "output_tokens": 364, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:49:11.773219+00:00", "request_id": "9494f5dd", "query": "cozy oversized cardigan", "status": "ok", "error": null, "selected_item": "Knit Cardigan — Chunky Brown", "latency_ms": 7261, "queue_wait_ms": 0, "run_ms": 7261, "model_calls": 2, "prompt_tokens": 863, "output_tokens": 383, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:49:36.315256+00:00", "request_id": "69484b92", "query": "90s track jacket in size M", "status": "ok", "error": null, "selected_item": "90s Track Jacket — Navy/White Stripe", "latency_ms": 7285, "queue_wait_ms": 0, "run_ms": 7285, "model_calls": 2, "prompt_tokens": 873, "output_tokens": 402, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:50:01.194547+00:00", "request_id": "8ebf2376", "query": "long sleeve in size L under $40", "status": "ok", "error": null, "selected_item": "Tie-Dye Long Sleeve — Pastel", "latency_ms": 6968, "queue_wait_ms": 0, "run_ms": 6967, "model_calls": 2, "prompt_tokens": 814, "output_tokens": 330, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:50:26.752212+00:00", "request_id": "a46af0b9", "query": "leather bag under $50", "status": "ok", "error": null, "selected_item": "Mini Shoulder Bag — Tan Leather", "latency_ms": 7626, "queue_wait_ms": 0, "run_ms": 7626, "model_calls": 2, "prompt_tokens": 897, "output_tokens": 428, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:50:55.942846+00:00", "request_id": "bfe779ab", "query": "y2k style pants under $30", "status": "ok", "error": null, "selected_item": "Low-Rise Cargo Pants — Khaki", "latency_ms": 6527, "queue_wait_ms": 0, "run_ms": 6527, "model_calls": 2, "prompt_tokens": 767, "output_tokens": 277, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:52:47.388004+00:00", "request_id": "45e44e70", "query": "baggy blue jeans", "status": "ok", "error": null, "selected_item": "Baggy Carpenter Jeans — Dark Wash", "latency_ms": 7403, "queue_wait_ms": 0, "run_ms": 7402, "model_calls": 2, "prompt_tokens": 799, "output_tokens": 320, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:53:33.641515+00:00", "request_id": "3810c6b3", "query": "designer ballgown size XXS under $5", "status": "no_results", "error": "No listings matched your search. Try raising your $5 price limit, or dropping or changing the size filter (XXS), or using different keywords than \"designer ballgown\".", "selected_item": null, "latency_ms": 4616, "queue_wait_ms": 0, "run_ms": 4615, "model_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-14T05:57:56.868189+00:00", "request_id": "26606d30", "query": "", "status": "bad_request", "error": "missing 'query' field", "latency_ms": 0, "queue_wait_ms": 0}
+{"timestamp": "2026-11-14T06:00:54.611853+00:00", "request_id": "63fc0287", "query": "black bottoms under $35", "status": "ok", "error": null, "selected_item": "Biker Shorts — Black, Shiny", "latency_ms": 9995, "queue_wait_ms": 0, "run_ms": 9995, "model_calls": 2, "prompt_tokens": 845, "output_tokens": 359, "cache_enabled": true}
+```
 
 **What It Costs**
+
+
 
 **Run Log and Verdicts**
 
