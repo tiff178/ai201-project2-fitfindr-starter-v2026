@@ -67,3 +67,47 @@ in `session["search_results"]` costs less than or equal to that price limit - 5 
 **Why this target:** Filtering listings by price is deterministic code that compares the listings' price against the `max_price`, so it should return the listings correctly every time based on the price ceiling set. 
 
 ---
+
+# Acceptance criteria — FitFindr (Capstone - Unit 9)
+
+---
+
+## 1. Token consumption per run stays within budget
+
+Given a valid POST request sent to `/ask` that returns a recommendation (`selected_item`), the total token consumption recorded in the structured log (`prompt_tokens` and `output_tokens`) does not exceed 1,300 tokens - 4 of 5 tries. 
+
+**Why this target:** A successful run executes two model calls (`suggest_outfit` and `create_fit_card`), which averaged ~1,207 total tokens across 10 runs. Setting a 1,300-token ceiling ensures prompt context and outputs remain tight and predictable, while the 4 of 5 target accommodates natural variance.
+
+---
+
+## 2. Bad request rejects missing query without running the agent
+
+Given a POST request sent to `/ask` with a missing or empty `query` field, the service returns an HTTP 400 status with an `error` message, and logs `status: "bad_request"` and no `run_ms` (the agent never ran) — 5 of 5 tries.
+
+**Why this target:** Input validation at the HTTP boundary is deterministic. Malformed requests should fail immediately with an HTTP 400 rather than crashing the server with a 500 or wasting LLM API tokens and compute on empty inputs.
+
+---
+
+## 3. Every request produces a structured log record
+
+Given any POST request sent to `/ask` (successful or failed), exactly one JSON log line is emitted containing the core lifecycle fields (`timestamp`, `request_id`, `status`, and `latency_ms`) — 5 of 5 tries.
+
+**Why this target:** The logging mechanism in `serve.py::_log_request` flushes a structured JSON record for every request before returning an HTTP response. Whether the request succeeds or fails early at the HTTP boundary, a structured audit log must always be created.
+
+---
+
+## 4. Warm request execution latency completes under 10 seconds
+
+Given a valid POST request sent to `/ask` on a warm deployed Render instance (defined as a request sent within 5 minutes of a previous request, excluding cold-start container wakeups), the agent execution duration (`run_ms`) completes in under 10,000 ms (10.0 seconds) — 4 of 5 tries.
+
+**Why this target:** Warm request execution latency averages ~7.5 seconds, so a 10-second ceiling accommodates normal external API latency jitter while keeping the service responsive. Defining "warm" as within 5 minutes ensures the free Render instance has not spun down or entered sleep mode. 
+
+---
+
+## 5. Model failure returns readable error and logs error status
+
+Given a valid POST request sent to `/ask` when a model call fails (e.g. wrong `GEMINI_API_KEY`), the service returns a readable error message in the response instead of crashing, and logs `status: "error"` - 5 of 5 tries. 
+
+**Why this target:** A production web service must isolate third-party dependency failures gracefully. If an external API is down or credentials fail, the server should return an error response and record `status: "error"` for alerting, rather than letting an unhandled exception crash.
+
+---
