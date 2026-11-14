@@ -134,6 +134,7 @@ gunicorn serve:app
 Once the host has started, check that the service is awake (`GET /health`) before sending a query (`POST /ask`): 
 
 ```bash
+python serve.py
 curl https://fitfindr-p6is.onrender.com/health
 ```
 
