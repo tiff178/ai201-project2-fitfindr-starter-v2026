@@ -99,9 +99,21 @@ def _ms(since: float) -> int:
     return round((time.perf_counter() - since) * 1000)
 
 
+REQUEST_LOG = config.RESULTS_DIR / "requests.jsonl"
+
+
 def _log_request(**fields) -> None:
     record = {"timestamp": datetime.now(timezone.utc).isoformat(), **fields}
-    print(json.dumps(record, ensure_ascii=False), flush=True)
+    line = json.dumps(record, ensure_ascii=False)
+    print(line, flush=True)  # stdout: what a host shows as logs
+    try:
+        # A file you can read back later. Hosts wipe it on sleep, so copy
+        # entries into the README the same session.
+        REQUEST_LOG.parent.mkdir(exist_ok=True)
+        with REQUEST_LOG.open("a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except OSError:
+        pass  # logging must never break a request
 
 
 @app.get("/health")
