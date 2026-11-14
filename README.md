@@ -332,6 +332,7 @@ Out of Scope:
 Path A - Hosted; FitFindr is deployed as a web service on Render at https://fitfindr-p6is.onrender.com, running `serve.py` via `gunicorn serve:app`. Refer to [RUNNING.md](RUNNING.md).
 
 **Instrumentation**
+
 Every run is recorded as a single structured JSON line with named fields: `timestamp`, `request_id`, `query`, `status` (`ok`, `no_results`, `bad_request`, or `error`), `error` (message string or `null`), `selected_item`, `latency_ms` (total duration), `queue_wait_ms`, `run_ms` (agent run duration), `model_calls`, `prompt_tokens`, `output_tokens`, and `cache_enabled`.
 
 The log entries below are extracted directly from the live Render web service logs: 
@@ -353,7 +354,11 @@ The log entries below are extracted directly from the live Render web service lo
 
 **What It Costs**
 
+Measured across 10 distinct queries sent to the deployed Render web service by extracting `prompt_tokens`, `output_tokens`, and `run_ms` directly from the structured logs:
 
+- Across 10 successful runs (2 model calls each), the service consumed a total of 8,431 `prompt_tokens` and 3,640 `output_tokens` in total. This averages 843 `prompt_tokens` and 364 `output_tokens` per run, totaling to about 1,207 tokens per query. 
+- Warm request execution latency averaged about 7.5 seconds per run (with `no_results` request in 4.6 seconds and `bad_request` rejected in 0 seconds).
+- 100-a-Day Arithmetic: For 100 queries/day x 1,207 tokens/query, it would be 120,700 tokens per day.
 
 **Run Log and Verdicts**
 
