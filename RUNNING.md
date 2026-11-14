@@ -119,25 +119,37 @@ Useful flags on `ask`:
 
 ---
 
-## Running it somewhere else — **unit 9**
+## Running it somewhere else — **Unit 9**
 
-Everything above exits when the command finishes. A host has nothing to keep
-running, so before you can deploy this you need something that stays up.
-`serve.py` is that: the same `run_agent()`, behind two HTTP routes.
+Unit 9 asks for one of two paths: **Path A**, hosted or **Path B**, local with logs. FitFindr takes **Path A**, hosted on Render: https://fitfindr-p6is.onrender.com. It is deployed as a web service cloned from this GitHub repo running `serve.py` via Gunicorn. During deployment, Render installs dependencies using `pip install -r requirements.txt` and starts the application with `gunicorn serve:app`. The application dynamically binds to the `PORT` environment variable assigned by the host, listens on `0.0.0.0`, and authenticates against the model provider using the `GEMINI_API_KEY` configured in Render's environment settings. 
 
-On your machine:
+Note: Free instances get wiped when they go to sleep (about 15 minutes of inactivity). The first wake-up request will experience a cold-start delay of about 45–60 seconds, while subsequent requests execute at normal latency
+
+On a host, the start command is:
+
+```bash
+gunicorn serve:app
+```
+
+Once the host has started, check that the service is awake (`GET /health`) before sending a query (`POST /ask`): 
+
+```bash
+curl https://fitfindr-p6is.onrender.com/health
+```
+
+```bash
+curl -X POST https://fitfindr-p6is.onrender.com/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "vintage graphic tee under $30"}'
+```
+
+Fitfindr can be run locally for development, debugging, or offline verification as well on your machine:
 
 ```bash
 python serve.py
 curl -X POST http://localhost:5000/ask \
   -H 'Content-Type: application/json' \
   -d '{"query": "vintage graphic tee under $30"}'
-```
-
-On a host, the start command is:
-
-```bash
-gunicorn serve:app
 ```
 
 | Thing | What it means |
