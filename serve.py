@@ -53,7 +53,6 @@ from utils.data_loader import get_example_wardrobe
 
 app = Flask(__name__)
 
-
 # ── one request at a time ─────────────────────────────────────────────────────
 # Here's why this exists.
 #
