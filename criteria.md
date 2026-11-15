@@ -110,4 +110,8 @@ Given a valid POST request sent to `/ask` when a model call fails (e.g. wrong `G
 
 **Why this target:** A production web service must isolate third-party dependency failures gracefully. If an external API is down or credentials fail, the server should return an error response and record `status: "error"` for alerting, rather than letting an unhandled exception crash.
 
+**Update:** A valid POST request was ambiguous. A query like `t-shirt under $25` is a request that matches no listing, so the agent stops at the empty-search branch and never reaches the model. A request that cannot reach the model, cannot test model failure. Therefore, the verdict was MISSED and requires a clearer criteria. 
+
+- Given a valid POST request that matches at least one listing sent to `/ask` when a model call fails (e.g. wrong `GEMINI_API_KEY`), the service returns a readable error message in the response instead of crashing, and logs `status: "error"` - 5 of 5 tries. 
+
 ---
