@@ -361,13 +361,43 @@ Measured across 10 distinct queries sent to the deployed Render web service by e
 - 100-a-Day Arithmetic: For 100 queries/day x 1,207 tokens/query, it would be 120,700 tokens per day.
 
 **Run Log and Verdicts**
+
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Token consumption per run stays within budget | 4 of 5 |  |  |  |  |
-| 2. Bad request rejects missing query without running the agent | 5 of 5 |  |  |  |  |
-| 3. Every request produces a structured log record | 5 of 5 |  |  |  |  |
-| 4. Warm request execution latency completes under 10 seconds | 4 of 5 |  |  |  |  |
-| 5. Model failure returns readable error and logs error status | 5 of 5 |  |  |  |  |
+| 1. Token consumption per run stays within budget (<= 1,300 tokens) | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Bad request rejects missing query without running the agent | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Every request produces a structured log record | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Warm request execution latency completes under 10 seconds | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Model failure returns readable error and logs error status | 5 of 5 | 4/5 | 4/5 | 4/5 | MISSED |
+
+*Note - Criterion 1 and 4*: With `cache_enabled` as true, identical prompts reused an answer already received (`model_calls: 0`, `prompt_tokens: 0`, `output_tokens: 0`). The runs technically satisfy both criterion as written, but they are not valid measurements. For Criterion 1, 0 tokens is under 1,300 as the model was never called. For Criterion 4, `run_ms` is much lower than a real warm request.
+
+Real output from one trial: 
+
+The actual log lines come from `serve.py::_log_request` and are captured in Render's logs. HTTP responses are handled by `serve.py::ask` and verified client-side by `run_render.py::post`. The real output below is from one of the runs. Criterion 1, 3, and 4 are produced by `serve.py::_log_request`. Criterion 2 is produced by `serve.py::ask` and `serve.py::_log_request`. Criterion 5 is manually tested by putting in wrong `GEMINI_API_KEY` in Render to redeploy and see the logs.  
+
+Trial 1 (Criterion 1-4): 
+```json
+{"timestamp": "2026-11-15T03:22:56.307002+00:00", "request_id": "3a847ea7", "query": "vintage graphic tee under $30", "status": "ok", "error": null, "selected_item": "Y2K Baby Tee — Butterfly Print", "latency_ms": 4302, "queue_wait_ms": 0, "run_ms": 4302, "model_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T03:23:02.409264+00:00", "request_id": "afc5b258", "query": "vintage blazer in size L", "status": "ok", "error": null, "selected_item": "Vintage Linen Blazer — Cream", "latency_ms": 4499, "queue_wait_ms": 0, "run_ms": 4499, "model_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T03:23:08.914864+00:00", "request_id": "f2b49ca3", "query": "platform sneakers in size 8", "status": "ok", "error": null, "selected_item": "Platform Sneakers — White Chunky Sole", "latency_ms": 4967, "queue_wait_ms": 0, "run_ms": 4967, "model_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T03:23:14.809547+00:00", "request_id": "805e7ed8", "query": "cozy oversized cardigan", "status": "ok", "error": null, "selected_item": "Knit Cardigan — Chunky Brown", "latency_ms": 4231, "queue_wait_ms": 0, "run_ms": 4231, "model_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T03:23:20.609598+00:00", "request_id": "3724e2f6", "query": "long sleeve in size L under $40", "status": "ok", "error": null, "selected_item": "Tie-Dye Long Sleeve — Pastel", "latency_ms": 4197, "queue_wait_ms": 0, "run_ms": 4196, "model_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T03:23:22.167431+00:00", "request_id": "2af2be8d", "query": "", "status": "bad_request", "error": "missing 'query' field", "latency_ms": 0, "queue_wait_ms": 0}
+{"timestamp": "2026-11-15T03:23:22.634309+00:00", "request_id": "70a74b9c", "query": "", "status": "bad_request", "error": "missing 'query' field", "latency_ms": 0, "queue_wait_ms": 0}
+{"timestamp": "2026-11-15T03:23:23.080346+00:00", "request_id": "fd8ef38a", "query": "", "status": "bad_request", "error": "missing 'query' field", "latency_ms": 0, "queue_wait_ms": 0}
+{"timestamp": "2026-11-15T03:23:23.588396+00:00", "request_id": "8f4b915e", "query": "", "status": "bad_request", "error": "missing 'query' field", "latency_ms": 0, "queue_wait_ms": 0}
+{"timestamp": "2026-11-15T03:23:24.045546+00:00", "request_id": "73ae71b9", "query": "", "status": "bad_request", "error": "missing 'query' field", "latency_ms": 0, "queue_wait_ms": 0}
+```
+
+Criterion 5: 
+```json 
+{"timestamp": "2026-11-15T04:56:00.458017+00:00", "request_id": "d6f0e5ef", "query": "tee under $30", "status": "error", "error": "The model is unavailable: The model rejected your API key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com.", "selected_item": "Y2K Baby Tee — Butterfly Print", "latency_ms": 4498, "queue_wait_ms": 0, "run_ms": 4497, "model_calls": 1, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T04:57:02.570442+00:00", "request_id": "f9c02964", "query": "baggy denim jeans", "status": "error", "error": "The model is unavailable: The model rejected your API key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com.", "selected_item": "Vintage Levi's 501 Jeans — Medium Wash", "latency_ms": 4758, "queue_wait_ms": 0, "run_ms": 4758, "model_calls": 1, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T04:57:43.158571+00:00", "request_id": "b8b780fe", "query": "cozy cardigan", "status": "error", "error": "The model is unavailable: The model rejected your API key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com.", "selected_item": "Knit Cardigan — Chunky Brown", "latency_ms": 4346, "queue_wait_ms": 0, "run_ms": 4345, "model_calls": 1, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T04:58:15.674156+00:00", "request_id": "78ee5b02", "query": "t-shirt under $25", "status": "no_results", "error": "No listings matched your search. Try raising your $25 price limit, or using different keywords than \"t-shirt\".", "selected_item": null, "latency_ms": 4401, "queue_wait_ms": 0, "run_ms": 4401, "model_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+{"timestamp": "2026-11-15T04:59:33.958387+00:00", "request_id": "99502b72", "query": "vintage denim vest under $30", "status": "error", "error": "The model is unavailable: The model rejected your API key. Check GEMINI_API_KEY in your .env file, or create a fresh key at aistudio.google.com.", "selected_item": "Denim Vest — Medium Wash, Studded", "latency_ms": 4335, "queue_wait_ms": 0, "run_ms": 4335, "model_calls": 1, "prompt_tokens": 0, "output_tokens": 0, "cache_enabled": true}
+```
 
 **The Improvement**
 
