@@ -431,8 +431,21 @@ Criterion 5:
 
 **What's Still Broken**
 
+All five criteria were MET. However, Criteria 1 and 4 are not validly measured because `AI201_CACHE` is set to true, so repeated prompts reused saved answers (`model_calls: 0`, `prompt_tokens: 0`, `output_tokens: 0`) instead of calling the model. This makes the `MET` verdicts unreliable: 0 tokens is under 1,300 only because no model call happened, and the 4 to 5 second `run_ms` is faster than a real run. To fix this, I would start with setting `AI201_CACHE=0` in Render, rerun all three trials, and confirm every valid line shows `model_calls: 2` and `cache_enabled: false`. I stopped here because I spent my one improvement on criterion 5 and ran short of time. With more time,the first thing I would do is set `AI201_CACHE=0` and rerun the full set, because every cost and latency number depends on it.
 
 **How I Used AI**
+
+Moment 1 
+
+- *What I asked for:* "Here are five acceptance criteria for a system I extended. For each one: how exactly would you test it using only the sentence itself, would two people score it the same way, and what would have to happen for it to fail? Don't rewrite them." (with my five acceptance criteria included)
+- *What came back:* Claude described how it would test it using only the sentence itself, whether two people would agree and what would happen for it to fail. 
+- *What I changed:* I refined the phrasing across my criteria and clarified ambiguous request boundaries so testing would be strictly deterministic.
+
+Moment 2
+
+- *What I asked for:* Brainstorm ideas/structure to write code similar to `run_eval.py` to run test for this Capstone - Unit 9.
+- *What came back:* Started with a basic structure and build from that to run `run_render.py` (before and after), cutting down the time to run each prompt manually one by one.
+- *What I changed:* Fixed the structure of the code to fit what I wanted to include in my results.
 
 ---
 
